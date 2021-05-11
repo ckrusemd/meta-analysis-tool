@@ -1,0 +1,55 @@
+version: "3.9"
+services:
+    api:
+        container_name: api
+        restart: always
+        build: 
+            context: ./
+            dockerfile: Docker/api/Dockerfile
+        ports:
+            - "80:80"
+        depends_on:
+            - mongodb
+        links:
+            - mongodb
+        volumes:
+            - ./:/app
+        entrypoint: sh /app/Docker/api/entrypoint.sh
+    dashproduction:
+        container_name: dash_production
+        build: 
+            context: ./
+            dockerfile: Docker/dash_production/Dockerfile
+        ports:
+            - "8050:8050"
+        volumes:
+            - ./:/app
+        entrypoint: sh /app/Docker/dash_production/entrypoint.sh
+    dashdevelopment:
+        container_name: dash_development
+        build: 
+            context: ./
+            dockerfile: Docker/dash_development/Dockerfile
+        ports:
+            - "8051:8050"
+        volumes:
+            - ./:/app
+        entrypoint: sh /app/Docker/dash_development/entrypoint.sh
+    mongodb:
+        container_name: mongodb
+        restart: always
+        build: 
+            context: ./
+            dockerfile: Docker/mongodb/Dockerfile
+        ports:
+            - "27017:27017"
+    pytest:
+        container_name: pytest
+        build: 
+            context: ./
+            dockerfile: Docker/pytest/Dockerfile
+        ports:
+            - "8080:80"
+        volumes:
+            - ./:/app
+        entrypoint: sh /app/Docker/pytest/entrypoint.sh
