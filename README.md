@@ -1,11 +1,16 @@
-Python Data Science Kickstarter 
+# Meta-Analysis Tool
 ==============================
 
-<p><small>Based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+Why are systematic reviews still tediously done by hand from A-Z, saved in spreadsheets and intransparently across several software suites?
 
-Builds on top of the excellent Cookiecutter DS template with services for FastAPI, Dash, MongoDB and pytest-html (creating a nice HTML of collected tests and displaying them through nginx).
+This project aims to accelerate the process using readily available tools:
+* Biopython: We can query the Entrez API to collect abstract information and text from Pubmed.
+* MongoDB: We can store the results as JSON to include, label and reproduce abstracts.
+* Dash: We can make it all interactive with the Python Dash framework. And follow PRISMA guidelines.
+* PythonMeta: We can arrive at the beautiful forest and funnel plots and customize the look.
+* Docker: Keep it reproducible, save the images.
 
-I base other projects on this template and invite you to do the same - please raise issues and suggestions.
+Please chip in with issues, suggestions and pull requests if you want to contribute.
 
 Docker services:
 * FastAPI (:80)

@@ -4,7 +4,7 @@ setup(
     name='src',
     packages=find_packages(),
     version='0.1.0',
-    description='Python Data Science Kickstarter',
+    description='Meta-Analysis Tool',
     author='ckrusemd',
     license='BSD-3',
 )
