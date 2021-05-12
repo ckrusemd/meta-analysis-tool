@@ -22,5 +22,5 @@ loguru
 Bio
 bs4
 lxml
-json
+pymongo
 requests

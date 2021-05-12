@@ -7,9 +7,9 @@ services:
             context: ./
             dockerfile: Docker/api/Dockerfile
         ports:
-            - "80:80"
+            - "8080:8080"
         depends_on:
-            - mongodb
+            - mongodb 
         links:
             - mongodb
         volumes:
@@ -49,7 +49,7 @@ services:
             context: ./
             dockerfile: Docker/pytest/Dockerfile
         ports:
-            - "8080:80"
+            - "80:80"
         volumes:
             - ./:/app
         entrypoint: sh /app/Docker/pytest/entrypoint.sh
