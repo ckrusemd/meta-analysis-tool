@@ -138,7 +138,8 @@ async def entrez_query(query_body: EntrezListUID = Body(...,example={ "uid_list"
         import requests
         query = ",".join(uid_list)
         result = requests.get("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=pubmed&id=" + query + "&cmd=prlinks&retmode=json").json()
-        return result
+        results_parsed = result['linksets'][0]['idurllist']
+        return [{ 'uid': result['id'], 'objurls' : result['objurls']} for result in results_parsed]
 
     results = entrez_fetch_full_text_linkout(uid_list = query_body.uid_list )
     return results
