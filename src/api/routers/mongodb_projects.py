@@ -3,6 +3,7 @@ from pymongo import MongoClient
 from pydantic import BaseModel
 from loguru import logger
 from ..dependencies import Helper
+import json
 
 router = APIRouter()
 
@@ -16,6 +17,12 @@ class EntrezQuery(BaseModel):
     query: str
     email: str
 
+class ProjectModel(BaseModel):
+    name: str
+    description: str
+    query: str
+    user_id: int
+
 ################################################
 ### QUERY
 ################################################
@@ -25,11 +32,11 @@ async def clean_mongodb_projects_collections():
     client = Helper_.getMongoDbClient()
     db = client['Projects']
     user_list = db['users'] 
-    user_list = []
+    user_list.delete_many({})
     projects = db['projects']
-    projects = []
+    projects.delete_many({})
     uid_reviews = db['uid_reviews']
-    uid_reviews = []
+    uid_reviews.delete_many({})
     counts = {  'users' : db['users'].find().count(),
                 'projects' : db['projects'].find().count(),
                 'uid_reviews' : db['uid_reviews'].find().count()
@@ -56,17 +63,41 @@ async def generate_empty_mongodb_projects_collections():
 async def get_all_mongodb_projects():
     client = Helper_.getMongoDbClient()
     db = client['Projects']
-    return list( db['projects'].find({}) )
+    results = db['projects'].find({},{"_id":0})
+    logger.info( results )
+    return list( results )
 
-@router.get("/mongodb_projects/users", tags=["MongoDB Projects"], summary="Get all projects in MongoDB")
-async def get_all_mongodb_projects():
+@router.get("/mongodb_projects/users", tags=["MongoDB Projects"], summary="Get all users in MongoDB")
+async def get_all_mongodb_users():
     client = Helper_.getMongoDbClient()
     db = client['Projects']
-    return list( db['users'].find({}) )
+    results = db['users'].find({},{"_id":0})
+    logger.info( results )
+    return list( results )
 
 @router.get("/mongodb_projects/uid_reviews/{project_id}", tags=["MongoDB Projects"], summary="Get all UID reviews for a project in MongoDB")
-async def get_all_mongodb_projects(project_id: int):
+async def get_all_mongodb_uid_reviews(project_id: int):
     client = Helper_.getMongoDbClient()
     db = client['Projects']
-    result = db['projects'].find_one({ 'uid' : project_id })
+    result = db['projects'].find_one({ 'uid' : project_id },{"_id":0})
     return result
+
+@router.post("/mongodb_projects/create_project/", tags=["MongoDB Projects"], summary="Create new project")
+async def create_project(query_body: ProjectModel = Body(...,example={ 
+                                                                        'name': 'Thiazide-Fracture', 
+                                                                        'description' : 'Do Thiazides Increase the Risk of Fractures?',
+                                                                        'query' : '("Thiazides"[Mesh]) AND "Fractures, Bone"[Mesh]',
+                                                                        'user_id' : 1  } ) ):
+
+    client = Helper_.getMongoDbClient()
+    db = client['Projects']
+    query_json = dict( query_body )
+
+    ## Check if exists:
+    exists_already = db['projects'].find_one(query_json,{"_id":0})
+    if exists_already == None:
+        result = db['projects'].insert_one( query_json )
+        result = list( db['projects'].find({},{"_id" : 0}) )
+        return result
+    else:
+        return exists_already
