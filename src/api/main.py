@@ -2,7 +2,7 @@ from fastapi import Depends, FastAPI
 
 #from .dependencies import get_query_token, get_token_header
 from .internal import admin
-from .routers import test, mongodb, entrez, mongodb_entrez
+from .routers import test, mongodb, entrez, mongodb_entrez, mongodb_projects
 
 app = FastAPI(title="Meta-Analysis Tool API",
     description="API for the Meta-Analysis Tool Application",
@@ -11,6 +11,7 @@ app = FastAPI(title="Meta-Analysis Tool API",
     )
 
 
+app.include_router(mongodb_projects.router)
 app.include_router(mongodb_entrez.router)
 app.include_router(entrez.router)
 app.include_router(mongodb.router)
