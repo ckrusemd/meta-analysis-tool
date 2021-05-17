@@ -20,43 +20,8 @@ class EntrezQuery(BaseModel):
 ### QUERY
 ################################################
 
-@router.post("/mongodb_entrez/clean_dictionaries/", tags=["MongoDB Entrez"], summary="Erase all content of Entrez-MongoDB dictionaries")
-async def clean_mongodb_entrez_dictionaries():
-    client = Helper_.getMongoDbClient()
-    db = client['Entrez']
-    uid_list = db['uid_list'] 
-    uid_list = []
-    summaries = db['summaries']
-    summaries = []
-    abstracts = db['abstracts']
-    abstracts = []
-    elinks = db['elinks']
-    elinks = []
-    counts = {  'uid_list' : db['uid_list'].find().count(),
-                'summaries' : db['summaries'].find().count(),
-                'abstracts' : db['abstracts'].find().count(),
-                'elinks' : db['elinks'].find().count()
-    }
-    return counts
 
-@router.post("/mongodb_entrez/generate_dictionaries/", tags=["MongoDB Entrez"], summary="Generate empty Entrez dictionaries in MongoDB ")
-async def generate_empty_mongodb_entrez_dictionaries():
-    client = Helper_.getMongoDbClient()
-    db = client['Entrez']
-    uid_list = db['uid_list'] 
-    uid_list = []
-    summaries = db['summaries']
-    summaries = []
-    abstracts = db['abstracts']
-    abstracts = []
-    elinks = db['elinks']
-    elinks = []
-    counts = {  'uid_list' : db['uid_list'].find().count(),
-                'summaries' : db['summaries'].find().count(),
-                'abstracts' : db['abstracts'].find().count(),
-                'elinks' : db['elinks'].find().count()
-    }
-    return counts
+
 
 @router.post("/mongodb_entrez/save_query_results/", tags=["MongoDB Entrez"], summary="Perform an Entrez query and save results to MongoDB")
 async def save_query_results_to_mongodb(query_body: EntrezQuery = Body(...,example={ "query": "kruse eiken vestergaard", 'email' : "XXX@YYY.com" } ) ):
