@@ -21,6 +21,37 @@ class EntrezQuery(BaseModel):
 ################################################
 
 
+@router.post("/mongodb_entrez/save_query_uids/{project_id}", tags=["MongoDB Entrez"], summary="Perform an Entrez query and save query UIDs to MongoDB")
+async def save_query_results_to_mongodb(project_id:int, query_body: EntrezQuery = Body(...,example={ "query": "kruse eiken vestergaard", 'email' : "XXX@YYY.com" } ) ):
+    client = Helper_.getMongoDbClient()
+    db = client['Entrez']
+
+    # Query
+    results_query = Helper_.entrez_search_pubmed(query = query_body.query, email = query_body.email )
+    results_query_parsed = Helper_.entrez_search_pubmed_parse_to_uid_list(results_query)
+    uid_list = results_query['IdList']
+    uid_list = { 'project_id': project_id, 'uid_list' : uid_list }
+
+    # UID reviews
+    client = Helper_.getMongoDbClient()
+    db = client['Projects']
+    project_uids = db['project_uids']
+
+    logger.info( len( list( db['project_uids'].find({"project_id": project_id},{"_id":0}) ) ) )
+
+    # Insert or update
+    if len( list( db['project_uids'].find({"project_id": project_id},{"_id":0}) ) )==0:
+        logger.info(" Insert ")
+        project_uids.insert_one( uid_list )
+    else:
+        logger.info(" Update ")
+        project_uids.delete_many( {"project_id": project_id} )
+        project_uids.insert_one( uid_list )
+
+
+    return list( db['project_uids'].find({},{"_id":0}) )
+
+
 
 
 @router.post("/mongodb_entrez/save_query_results/", tags=["MongoDB Entrez"], summary="Perform an Entrez query and save results to MongoDB")
