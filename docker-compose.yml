@@ -16,7 +16,8 @@ services:
             - ./:/app
         entrypoint: sh /app/Docker/api/entrypoint.sh
     dashproduction:
-        container_name: dash_production
+        container_name: dashproduction
+        restart: always
         build: 
             context: ./
             dockerfile: Docker/dash_production/Dockerfile
@@ -26,7 +27,8 @@ services:
             - ./:/app
         entrypoint: sh /app/Docker/dash_production/entrypoint.sh
     dashdevelopment:
-        container_name: dash_development
+        container_name: dashdevelopment
+        restart: always
         build: 
             context: ./
             dockerfile: Docker/dash_development/Dockerfile
