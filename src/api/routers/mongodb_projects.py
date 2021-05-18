@@ -84,9 +84,9 @@ async def get_all_mongodb_uid_reviews(project_id: int):
 
 @router.post("/mongodb_projects/create_project/", tags=["MongoDB Projects"], summary="Create new project")
 async def create_project(query_body: ProjectModel = Body(...,example={ 
-                                                                        'name': 'Thiazide-Fracture', 
-                                                                        'description' : 'Do Thiazides Increase the Risk of Fractures?',
-                                                                        'query' : '("Thiazides"[Mesh]) AND "Fractures, Bone"[Mesh]',
+                                                                        'name': 'Kruse Eiken Vestergaard', 
+                                                                        'description' : 'Articles Done By Me',
+                                                                        'query' : 'kruse eiken vestergaard',
                                                                         'user_id' : 1  } ) ):
 
     client = Helper_.getMongoDbClient()
