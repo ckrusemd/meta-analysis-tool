@@ -5,6 +5,11 @@ a {
   color: black;
 }
 
+.navbar-offset {
+  margin-left:10px;
+  margin-right:10px;
+}
+
 .fa {
 position: relative;
 display: table-cell;
