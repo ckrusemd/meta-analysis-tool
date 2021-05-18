@@ -48,10 +48,24 @@ menu_2 = [
     )
 ]
 
+# Menu 3
+menu_3 = [
+    html.Li(
+        dbc.Row(
+            [
+                dbc.Col(    html.I(className="fas fa-chart-line mr-3"), width=1, className="icon-padding"  ),
+                dbc.Col(    dbc.NavLink("Review Abstracts", href="/review_abstracts/"), className="navlink-padding"  ),
+            ],
+            className="my-1",
+        ),
+        id="menu-3",
+    )
+]
+
 # Sidebar
 sidebar = html.Div(
     [
-        dbc.Nav(menu_1 + menu_2, vertical=True),
+        dbc.Nav(menu_1 + menu_2 + menu_3, vertical=True),
     ],
     className="sidebar",
     id="sidebar",
@@ -121,7 +135,17 @@ app.layout = html.Div([dcc.Location(id="url"), navbar,sidebar, content])
 # Create Project
 page_1 = html.Div([
     html.H1("Create Project"),
-    html.Button('Test Api', id='test-api', n_clicks=0),
+    html.H5("Project Name:"),
+    dcc.Input( id="project_Name" ,placeholder="hello",value="Kruse Eiken Vestergaard"),
+    html.H5("Project Description:"),
+    dcc.Textarea( id="project_Description", style={'width': '100%', 'height': 300} ,value="My publications"),
+    html.H5("Project Query:"),
+    dcc.Input( id="project_Query" ,value="Kruse Eiken Vestergaard"),
+    html.H5("Project Author:"),
+    dcc.Input( id="project_Author" ,value=1),
+    html.P(),
+    html.Button('Save Project', id='save-project-button', n_clicks=0),
+    html.Div(id="create-project-content"),
     html.Div(id='container-api-result',
              children='')
 ])
@@ -133,6 +157,11 @@ page_2 = html.Div([
     html.Div(id="current-project-content")
 ])
 
+# Review Abstracts
+page_3 = html.Div([
+    html.H1("Review Abstracts"),
+    html.Button("Get Next Abstract", id='get-next-abstract', n_clicks=0)
+])
 
 # Get Current Project
 @app.callback(
@@ -147,6 +176,47 @@ def get_current_project(n_clicks):
             result = result + [html.P(key + ": " + str( value ) )]
     return result
 
+# Create New Project
+@app.callback(
+    dash.dependencies.Output('create-project-content', 'children'),
+    [   dash.dependencies.Input('save-project-button', 'n_clicks'),
+        dash.dependencies.State('project_Name', 'value'),
+        dash.dependencies.State('project_Description', 'value'),
+        dash.dependencies.State('project_Query', 'value'),
+        dash.dependencies.State('project_Author', 'value')
+    ])
+def create_new_project(n_clicks,project_Name,project_Description,project_Query,project_Author):
+    post_body = {"name": project_Name,"description": project_Description,"query": project_Query,"user_id": project_Author}
+    result = requests.post("http://api:8080/mongodb_projects/create_project/",json=post_body).json()
+    logger.info( result )
+    return html.P("OK!")
+
+
+
+    dcc.Input( id="project_Name" ,placeholder="hello"),
+    html.H5("Project Description:"),
+    dcc.Textarea( id="project_Description", style={'width': '100%', 'height': 300} ),
+    html.H5("Project Query:"),
+    dcc.Input( id="project_Query" ),
+    html.H5("Project Author:"),
+    dcc.Input( id="project_Author" ),
+    html.P(),
+    html.Button('Save Project', id='save-project-button', n_clicks=0),
+    html.Div(id='container-api-result',
+             children='')
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # URL
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
@@ -155,6 +225,11 @@ def render_page_content(pathname):
         return page_1
     elif pathname == "/current_project/":
         return page_2
+    elif pathname == "/review_abstracts/":
+        return page_3
+
+
+        
     return dbc.Jumbotron(
         [
             html.H1("404: Not found", className="text-danger"),
