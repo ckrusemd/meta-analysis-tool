@@ -160,7 +160,8 @@ page_2 = html.Div([
 # Review Abstracts
 page_3 = html.Div([
     html.H1("Review Abstracts"),
-    html.Button("Get Next Abstract", id='get-next-abstract', n_clicks=0)
+    html.Button("Get Next Abstract", id='get-next-abstract', n_clicks=0),
+    html.Div(id="next-abstract-content")
 ])
 
 # Get Current Project
@@ -169,7 +170,6 @@ page_3 = html.Div([
     [dash.dependencies.Input('get-current-project', 'n_clicks')])
 def get_current_project(n_clicks):
     projects = requests.get("http://api:8080/mongodb_projects/projects").json()
-    logger.info( projects )
     result = []
     for project in projects:
         for key,value in project.items():
@@ -188,35 +188,65 @@ def get_current_project(n_clicks):
 def create_new_project(n_clicks,project_Name,project_Description,project_Query,project_Author):
     post_body = {"name": project_Name,"description": project_Description,"query": project_Query,"user_id": project_Author}
     result = requests.post("http://api:8080/mongodb_projects/create_project/",json=post_body).json()
-    logger.info( result )
     return html.P("OK!")
 
+# Get Next Abstract
+@app.callback(
+    dash.dependencies.Output('next-abstract-content', 'children'),
+    [dash.dependencies.Input('get-next-abstract', 'n_clicks')])
+def get_next_abstract(n_clicks):
+    project_id = 1
+    projects = requests.get("http://api:8080/mongodb_review/next_abstract/" + str(project_id) ).json()
 
+    ### Build HTML
+    result = []
+    # Title
+    title = projects['summary']['summary'][0]['Title']
+    result = result + [ html.H2(title) ]
+    # Authors
+    authors = projects['summary']['summary'][0]['AuthorList']
+    result = result + [html.H5([author + ", " for author in authors ])]
+    # EPubDate
+    EPubDate = projects['summary']['summary'][0]['EPubDate']
+    result = result + [html.H6(EPubDate)]
+    # Source
+    Source = projects['summary']['summary'][0]['Source']
+    result = result + [html.H6(Source)]
+    # Abstract
+    abstract = projects['abstract']['abstract']
+    result = result + [html.P(abstract)]
+    # Elink
+    Elink = projects['elinks']['objurls'][0]
+    elink_img = Elink['iconurl']['value']
+    elink_url = Elink['url']['value']
+    Elink_html = html.A(
+                dbc.Row(
+                    [
+                        dbc.Col(html.Img(src=elink_img, height="30px"))
+                        
+                    ],
+                    align="center",
+                    no_gutters=True,
+                ),
+                href=elink_url,
+                target="_blank"
+            )
+    result = result + [Elink_html]
 
-    dcc.Input( id="project_Name" ,placeholder="hello"),
-    html.H5("Project Description:"),
-    dcc.Textarea( id="project_Description", style={'width': '100%', 'height': 300} ),
-    html.H5("Project Query:"),
-    dcc.Input( id="project_Query" ),
-    html.H5("Project Author:"),
-    dcc.Input( id="project_Author" ),
-    html.P(),
-    html.Button('Save Project', id='save-project-button', n_clicks=0),
-    html.Div(id='container-api-result',
-             children='')
+    ## Options
+    html_options = []
+    html_options = html_options + [html.H3("Options")]
+    html_options = html_options + [html.Button("Include")]
+    html_options = html_options + [html.Button("Exclude")]
+    html_options = html_options + [html.Button("Next")]
 
-
-
-
-
-
-
-
-
-
-
-
-
+    ## Columnize
+    return_result = dbc.Row([
+        dbc.Col(result,width=8),
+        dbc.Col(html_options,width=4)
+    ])
+    
+    return return_result
 
 # URL
 @app.callback(Output("page-content", "children"), [Input("url", "pathname")])
